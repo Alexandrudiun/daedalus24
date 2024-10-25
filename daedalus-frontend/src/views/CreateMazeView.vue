@@ -75,8 +75,12 @@
           <span>{{ wallDensity }}%</span>
         </div>
         <div class="button-group">
-          <button type="submit" class="create-button">Create</button>
-          <button type="button" @click="importMaze" class="import-button">Import</button>
+          <RouterLink to="/play-maze">
+            <button type="submit" class="create-button">Create</button>
+          </RouterLink>
+          <RouterLink to="/import-maze">
+            <button type="button" @click="importMaze" class="import-button">Import</button>
+          </RouterLink>
         </div>
       </form>
     </div>
