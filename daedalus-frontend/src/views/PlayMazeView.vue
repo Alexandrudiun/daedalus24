@@ -38,6 +38,7 @@
         endY: 0,
         cellSize: 20, // dimensiunea fiecărei celule
         stepCount: 0, // numărul de pași
+        path: [], // drumul cel mai scurt
         };
     },
     methods: {
@@ -59,34 +60,26 @@
       },
       setupMaze(data) {
         const walls = JSON.parse(data.wallarray);
-
-        // Extrage dimensiunile labirintului și convertește la numere
         const sizeY = parseInt(data.sizey?.$numberInt ?? data.sizey, 10);
         const sizeX = parseInt(data.sizex?.$numberInt ?? data.sizex, 10);
-        
-        // Verifică dacă dimensiunile sunt valide
+
         if (isNaN(sizeX) || isNaN(sizeY) || sizeX <= 0 || sizeY <= 0) {
             console.error("Invalid maze dimensions:", sizeX, sizeY);
             return;
         }
 
-        // Initializează matricea
         this.maze = Array.from({ length: sizeY }, () => Array(sizeX).fill(0));
-
-        // Setează pozițiile de start și de final după verificarea valorilor numerice
         this.startX = parseInt(data.startx?.$numberInt ?? data.startx, 10);
         this.startY = parseInt(data.starty?.$numberInt ?? data.starty, 10);
         this.endX = parseInt(data.endx?.$numberInt ?? data.endx, 10);
         this.endY = parseInt(data.endy?.$numberInt ?? data.endy, 10);
 
-        // Populează pereții în matrice
         walls.forEach(([y, x]) => {
             if (y < sizeY && x < sizeX) {
-            this.maze[y][x] = 1; // 1 pentru pereți
+              this.maze[y][x] = 1; // 1 pentru pereți
             }
         });
 
-        // Ajustează dimensiunea celulei
         const displayWidth = Math.min(window.innerWidth - 40, sizeX * this.cellSize);
         this.cellSize = Math.floor(displayWidth / sizeX);
     },
@@ -97,9 +90,58 @@
           return "end";
         } else if (this.maze[rowIndex][cellIndex] === 1) {
           return "wall";
+        } else if (this.path.some(pos => pos[0] === rowIndex && pos[1] === cellIndex)) {
+          return "road";
         }
         return "";
       },
+      showPath() {
+        this.path = this.findPath();
+        this.stepCount = this.path.length; // numărul de pași până la final
+      },
+      findPath() {
+  const openSet = [{ x: this.startX, y: this.startY, g: 0, f: 0 }];
+  const cameFrom = new Map();
+  const gScores = Array.from({ length: this.maze.length }, () => Array(this.maze[0].length).fill(Infinity));
+  gScores[this.startY][this.startX] = 0;
+
+  const h = (x, y) => Math.abs(x - this.endX) + Math.abs(y - this.endY);
+  
+  while (openSet.length > 0) {
+    openSet.sort((a, b) => a.f - b.f);
+    const current = openSet.shift();
+    const { x, y } = current;
+
+    if (x === this.endX && y === this.endY) {
+      let path = [[y, x]];
+      let currentY = y;
+      let currentX = x;
+
+      while (cameFrom.has(`${currentY},${currentX}`)) {
+        [currentY, currentX] = cameFrom.get(`${currentY},${currentX}`);
+        path.push([currentY, currentX]);
+      }
+      return path.reverse();
+    }
+
+    const neighbors = [
+      [y - 1, x], [y + 1, x], [y, x - 1], [y, x + 1]
+    ];
+
+    for (const [ny, nx] of neighbors) {
+      if (ny < 0 || ny >= this.maze.length || nx < 0 || nx >= this.maze[0].length || this.maze[ny][nx] === 1) continue;
+
+      const tentativeGScore = gScores[y][x] + 1;
+      if (tentativeGScore < gScores[ny][nx]) {
+        cameFrom.set(`${ny},${nx}`, [y, x]);
+        gScores[ny][nx] = tentativeGScore;
+        openSet.push({ x: nx, y: ny, g: tentativeGScore, f: tentativeGScore + h(nx, ny) });
+      }
+    }
+  }
+  return []; // Dacă nu există drum valid
+}
+
     },
     mounted() {
       this.fetchMazeData();
@@ -117,7 +159,7 @@
 
 .maze-content {
   display: flex;
-  align-items: center; /* Aliniază labirintul și controalele vertical */
+  align-items: center;
 }
 
 .maze-grid {
@@ -131,34 +173,53 @@
 
 .maze-cell {
   border: 2px transparent #eee;
+  background-image: url('../assets/basic_tile.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.road {
+  background-image: url('../assets/road.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .wall {
-  background-color: #333;
+  background-image: url('../assets/wall.jpeg');
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .start {
-  background-color: #4CAF50;
+  background-image: url('../assets/player.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .end {
-  background-color: #f44336;
+  background-image: url('../assets/gate.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .controls {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centrează conținutul în interiorul controls */
-  margin-left: 50px; /* Spațiu între labirint și controale */
+  align-items: center;
+  margin-left: 50px;
   background-color: rgba(238, 238, 238, 0.5);
-  border-radius: 12px; /* Colțuri rotunjite */
-  padding: 35px; /* Spațiu interior */
-  backdrop-filter: blur(8px); /* Efect de blur pe fundal */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Umbra pentru adâncime */
+  border-radius: 12px;
+  padding: 35px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .show-path-button {
-  background-color: #4CAF50; /* Culoare verde */
+  background-color: #4CAF50;
   color: white;
   border: none;
   padding: 10px;
@@ -168,7 +229,7 @@
 }
 
 .show-path-button:hover {
-  background-color: #45a049; /* Întunecarea culorii la hover */
+  background-color: #45a049;
 }
 
 .step-count {
