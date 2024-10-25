@@ -20,8 +20,9 @@
           </div>
         </div>
         <div class="controls">
-          <button @click="showPath" class="show-path-button">Show Path</button>
-          <p class="step-count">Steps: {{ stepCount }}</p>
+            <button @click="showPath" class="show-path-button">Show Path</button>
+            <button @click="moveToEndpoint" class="escape-button">Escape</button>
+            <p class="step-count">Steps: {{ stepCount }}</p>
         </div>
       </div>
     </div>
@@ -122,6 +123,34 @@
       this.path = this.findPath();
       this.stepCount = this.path.length;
     },
+    async moveToEndpoint() {
+    if (this.path.length === 0) {
+      alert("No path found! Please calculate the path first.");
+      return;
+    }
+
+    // Start moving from the start position
+    let currentStep = 0;
+
+    const movePlayer = () => {
+      if (currentStep < this.path.length) {
+        const [y, x] = this.path[currentStep];
+
+        // Update the maze state to reflect the player's current position
+        this.startX = x;
+        this.startY = y;
+
+        // Update the cell classes to trigger re-render
+        this.$forceUpdate();
+
+        currentStep++;
+      } else {
+        clearInterval(animationInterval); // Stop the animation when reaching the endpoint
+      }
+    };
+
+    const animationInterval = setInterval(movePlayer, 100); // Adjust timing for animation speed
+  },
     findPath() {
       const openSet = [{ x: this.startX, y: this.startY, g: 0, f: 0 }];
       const cameFrom = new Map();
@@ -265,5 +294,20 @@
 .step-count {
   margin-top: 10px;
   font-size: 1.2em;
+}
+
+.escape-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px; 
+}
+
+.escape-button:hover {
+  background-color: #e53935;
 }
 </style>
