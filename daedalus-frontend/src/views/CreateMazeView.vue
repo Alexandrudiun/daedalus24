@@ -4,7 +4,7 @@
       <h1 class="play-title">Create Your Maze</h1>
       <form @submit.prevent="handleSubmit">
         <div class="input-group">
-          <label for="mazeWidth">Maze Width:</label>
+          <label for="mazeWidth">Maze Height:</label>
           <input
             type="number"
             id="mazeWidth"
@@ -14,7 +14,7 @@
           />
         </div>
         <div class="input-group">
-          <label for="mazeHeight">Maze Heigth:</label>
+          <label for="mazeHeight">Maze Width:</label>
           <input
             type="number"
             id="mazeHeight"
@@ -111,14 +111,14 @@
     }
   },
   mounted() {
-    this.setInitialDimensions();
+    //this.setInitialDimensions();
     window.addEventListener('resize', this.handleResize);
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.handleResize);
   },
   methods: {
-    setInitialDimensions() {
+    /*setInitialDimensions() {
       this.mazeWidth = this.maxDimensions.width;
       this.mazeHeight = this.maxDimensions.height;
       
@@ -126,7 +126,7 @@
       this.startY = 0;
       this.endX = this.mazeWidth - 1;
       this.endY = this.mazeHeight - 1;
-    },
+    },*/
     
     handleResize() {
       const newDimensions = this.maxDimensions;

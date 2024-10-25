@@ -14,14 +14,20 @@ import { RouterLink } from 'vue-router';
 </script>
 
 <style scoped>
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .welcome-container {
   display: flex;
   align-items: center; /* Center vertically */
   justify-content: center; /* Center horizontally */
   height: 100vh; /* Full height of the viewport */
-  background-image: url('assets/background.webp'); /* Background image */
-  background-size: cover; /* Cover the entire container */
-  background-position: center; /* Center the background image */
   margin: 0;
   padding: 0;
 }
@@ -29,12 +35,12 @@ import { RouterLink } from 'vue-router';
 .welcome-content {
   text-align: center;
   background-color: rgba(255, 255, 255, 0.8);
-  padding: 50px; /* Adjust padding for more space */
+  padding: 50px;
   border: 2px solid #DAA520;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: 80%; /* Adjust width as needed */
-  max-width: 600px; /* Limit max width for large screens */
+  width: 80%;
+  max-width: 600px;
 }
 
 .welcome-text {
@@ -42,6 +48,10 @@ import { RouterLink } from 'vue-router';
   font-size: 5.5em;
   color: #1C1C1C;
   margin-bottom: 20px;
+
+  /* Apply fade-in animation */
+  opacity: 0;
+  animation: fadeIn 1s ease-in forwards;
 }
 
 .play-button {
