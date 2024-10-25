@@ -14,7 +14,7 @@
           />
         </div>
         <div class="input-group">
-          <label for="mazeHeight">Maze Height:</label>
+          <label for="mazeHeight">Maze Heigth:</label>
           <input
             type="number"
             id="mazeHeight"
