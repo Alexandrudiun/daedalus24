@@ -280,6 +280,7 @@
         sizey: Number(this.mazeHeight),
         endx: Number(this.endX),
         endy: Number(this.endY),
+        path:"",
         wallarray: wallarray  // Acum este direct un string
       };
 
