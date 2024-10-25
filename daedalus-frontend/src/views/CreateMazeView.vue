@@ -417,7 +417,7 @@ input[type="range"] {
 .create-button,
 .import-button {
   font-family: "Jacquard 12", system-ui;
-  font-size: 1.2em;
+  font-size: 3.2em;
   color: #ffffff;
   background-color: #DAA520;
   padding: 10px 20px;

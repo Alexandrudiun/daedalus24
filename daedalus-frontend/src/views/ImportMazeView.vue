@@ -135,7 +135,8 @@ export default {
 
 .maze-card {
     background-image: url('../assets/maze_card.jpeg');
-    background-color: rgba(255, 255, 255, 0.6);
+    background-size: contain;
+    background-color: rgba(255, 255, 255, 0.8);
     background-blend-mode: overlay;
     backdrop-filter: blur(8px);
     padding: 20px;
