@@ -214,6 +214,8 @@ export default {
         this.errorCode = 200;
         this.showError('A apărut o eroare la crearea labirintului: ' + error.message);
       });
+
+      this.$router.push('/play-maze');
     },
     
     areAdjacent(x1, y1, x2, y2) {
