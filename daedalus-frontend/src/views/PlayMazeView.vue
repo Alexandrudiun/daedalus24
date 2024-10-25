@@ -48,31 +48,38 @@
         }
       },
       setupMaze(data) {
-        // Conversia pereților din string în matrice
         const walls = JSON.parse(data.wallarray);
+
+        // Extrage dimensiunile labirintului și convertește la numere
+        const sizeY = parseInt(data.sizey?.$numberInt ?? data.sizey, 10);
+        const sizeX = parseInt(data.sizex?.$numberInt ?? data.sizex, 10);
         
-        // Inițializarea matricei
-        const sizeY = parseInt(data.sizey.$numberInt);
-        const sizeX = parseInt(data.sizex.$numberInt);
-        this.maze = Array(sizeY).fill().map(() => Array(sizeX).fill(0));
-  
-        // Setează pozițiile de start și de final
-        this.startX = parseInt(data.startx.$numberInt);
-        this.startY = parseInt(data.starty.$numberInt);
-        this.endX = parseInt(data.endx.$numberInt);
-        this.endY = parseInt(data.endy.$numberInt);
-  
-        // Adaugă pereții în matrice
+        // Verifică dacă dimensiunile sunt valide
+        if (isNaN(sizeX) || isNaN(sizeY) || sizeX <= 0 || sizeY <= 0) {
+            console.error("Invalid maze dimensions:", sizeX, sizeY);
+            return;
+        }
+
+        // Initializează matricea
+        this.maze = Array.from({ length: sizeY }, () => Array(sizeX).fill(0));
+
+        // Setează pozițiile de start și de final după verificarea valorilor numerice
+        this.startX = parseInt(data.startx?.$numberInt ?? data.startx, 10);
+        this.startY = parseInt(data.starty?.$numberInt ?? data.starty, 10);
+        this.endX = parseInt(data.endx?.$numberInt ?? data.endx, 10);
+        this.endY = parseInt(data.endy?.$numberInt ?? data.endy, 10);
+
+        // Populează pereții în matrice
         walls.forEach(([y, x]) => {
-          if (y < sizeY && x < sizeX) {
+            if (y < sizeY && x < sizeX) {
             this.maze[y][x] = 1; // 1 pentru pereți
-          }
+            }
         });
-  
-        // Ajustează dimensiunea celulei pentru a se potrivi pe ecran
+
+        // Ajustează dimensiunea celulei
         const displayWidth = Math.min(window.innerWidth - 40, sizeX * this.cellSize);
         this.cellSize = Math.floor(displayWidth / sizeX);
-      },
+    },
       getCellClass(rowIndex, cellIndex) {
         if (rowIndex === this.startY && cellIndex === this.startX) {
           return "start";
