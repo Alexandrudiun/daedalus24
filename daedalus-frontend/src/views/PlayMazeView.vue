@@ -245,37 +245,33 @@
   
   <style scoped>
   .maze-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 10px; /* Add padding for mobile */
-}
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
   
-.maze-content {
-  display: flex;
-  flex-direction: column; /* Stack maze and controls vertically */
-  align-items: center;
-  width: 100%; /* Take full width on mobile */
-}
+  .maze-content {
+    display: flex;
+    align-items: center;
+  }
   
-.maze-grid {
-  display: grid;
-  background-color: rgba(238, 238, 238, 0.5);
-  backdrop-filter: blur(6px);
-  gap: 0;
-  padding: 20px;
-  border-radius: 12px;
-  width: 100%; /* Make grid take full width */
-}
+  .maze-grid {
+    display: grid;
+    background-color: rgba(238, 238, 238, 0.5);
+    backdrop-filter: blur(6px);
+    gap: 0px;
+    padding: 20px;
+    border-radius: 12px;
+  }
     
-.maze-cell {
-  border: 2px transparent #eee;
-  background-image: url('../assets/basic_tile.jpeg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
+  .maze-cell {
+    border: 2px transparent #eee;
+    background-image: url('../assets/basic_tile.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
     
   .road {
     background-image: url('../assets/road.jpeg');
@@ -364,13 +360,6 @@
     z-index: 1000;
 }
 
-.show-path-button,
-.escape-button {
-  width: 100%; /* Make buttons full width on mobile */
-  padding: 12px; /* Increase padding */
-  margin-top: 10px; /* Add margin for spacing */
-}
-
 .popup-content {
     background-image: url('../assets/win2.jpeg');
     background-size: cover;
@@ -404,32 +393,5 @@
 .close-button:hover {
     background-color: #B8860B;
 }
-
-/* Media queries for mobile screens */
-@media only screen and (max-width: 768px) {
-  .step-count {
-    font-size: 1.5em; /* Reduce font size for mobile */
-  }
-
-  .popup-content {
-    padding: 20px; /* Reduce padding in popup */
-  }
-
-  .congratulations-text {
-    font-size: 2em; /* Adjust text size */
-  }
-
-  .close-button {
-    width: 100%; /* Make close button full width */
-  }
-}
-
-/* Additional media query for larger screens */
-@media only screen and (min-width: 769px) {
-  .controls {
-    margin-left: 50px;
-  }
-}
-
-</style>
+  </style>
   
