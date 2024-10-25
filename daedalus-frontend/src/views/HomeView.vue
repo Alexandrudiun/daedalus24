@@ -5,6 +5,8 @@
       <RouterLink to="/create-maze">
         <button class="play-button">Play</button>
       </RouterLink>
+      <button class="back-button">Back</button>
+      <button class="music-button"></button>
     </div>
   </div>
 </template>
@@ -30,6 +32,7 @@ import { RouterLink } from 'vue-router';
   height: 100vh; 
   margin: 0;
   padding: 0;
+  position: relative;
 }
 
 .welcome-content {
@@ -68,31 +71,92 @@ import { RouterLink } from 'vue-router';
   background-color: #B8860B;
 }
 
+.back-button {
+  position: absolute;
+  top: 20px;
+  right: 100px;
+  font-family: "Jacquard 12", system-ui;
+  font-size: 1.7em;
+  padding: 10px 20px;
+  background-color: #DAA520;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.back-button:hover {
+  background-color: #B8860B;
+}
+
+.music-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background-image: url('assets/harp.png');
+  background-size: cover;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
 /* Media queries pentru responsive design pe telefoane */
 @media (max-width: 768px) {
   .welcome-text {
-    font-size: 3em; /* Dimensiune mai mică pe ecrane mici */
+    font-size: 3em;
   }
   
   .play-button {
-    font-size: 2em; /* Dimensiune mai mică pentru buton */
-    padding: 8px 20px; /* Ajustare padding */
+    font-size: 2em;
+    padding: 8px 20px;
   }
 
   .welcome-content {
-    padding: 30px; /* Ajustare padding pentru conținut */
-    width: 90%; /* Lățime mai mare pe ecrane mici */
+    padding: 30px;
+    width: 90%;
+  }
+
+  .back-button {
+    font-size: 1.4em; /* Dimensiune mai mică pentru back button */
+    padding: 8px 16px; /* Ajustare padding */
+    top: 10px; /* Poziționare mai sus pe ecrane mici */
+    right: 80px; /* Ajustare margine dreapta */
+  }
+
+  .music-button {
+    width: 50px; /* Dimensiune mai mică pentru music button */
+    height: 50px; /* Dimensiune mai mică pentru music button */
+    bottom: 10px; /* Poziționare mai jos pe ecrane mici */
+    right: 10px; /* Ajustare margine dreapta */
   }
 }
 
 @media (max-width: 480px) {
   .welcome-text {
-    font-size: 2.5em; /* Dimensiune și mai mică pentru ecrane foarte mici */
+    font-size: 2.5em;
   }
   
   .play-button {
     font-size: 1.8em;
-    padding: 6px 16px; /* Ajustare padding */
+    padding: 6px 16px;
+  }
+
+  .back-button {
+    font-size: 1.2em;
+    padding: 6px 12px;
+    top: 8px;
+    right: 70px;
+  }
+
+  .music-button {
+    width: 40px;
+    height: 40px;
+    bottom: 8px;
+    right: 8px;
   }
 }
 </style>
