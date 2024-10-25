@@ -155,12 +155,10 @@
       const requestedWalls = Math.floor(totalCells * (validDensity / 100));
       const numberOfWalls = Math.min(requestedWalls, maxWalls);
       
-      // Array pentru a ține evidența pozițiilor ocupate
       const occupiedPositions = new Set();
       occupiedPositions.add(`${this.startX},${this.startY}`);
       occupiedPositions.add(`${this.endX},${this.endY}`);
 
-      // Array pentru stocarea coordonatelor pereților
       const walls = [];
       let attempts = 0;
       const maxAttempts = totalCells * 2;
@@ -171,16 +169,15 @@
         const posKey = `${x},${y}`;
 
         if (!occupiedPositions.has(posKey)) {
-          // Verificăm să nu blocăm calea
+          // verify block
           if (!this.wouldBlockPath(x, y, width, height, walls)) {
-            walls.push([y, x]);  // Adăugăm [y, x] pentru a menține formatul corect
+            walls.push([y, x]);
             occupiedPositions.add(posKey);
           }
         }
         attempts++;
       }
 
-      // Convertim array-ul direct într-un string în formatul dorit
       const wallArrayString = JSON.stringify(walls);
       console.log("Generated wall array:", wallArrayString);
       return wallArrayString;
@@ -189,12 +186,10 @@
     wouldBlockPath(wallX, wallY, width, height, currentWalls) {
       const grid = Array(height).fill().map(() => Array(width).fill(0));
       
-      // Marcăm pereții existenți
       currentWalls.forEach(([y, x]) => {
         grid[y][x] = 1;
       });
 
-      // Marcăm noul perete
       grid[wallY][wallX] = 1;
 
       const visited = new Set();
@@ -205,10 +200,9 @@
         const [x, y] = queue.shift();
         
         if (x === this.endX && y === this.endY) {
-          return false; // Am găsit o cale
+          return false;
         }
 
-        // Verificăm vecinii
         const neighbors = [
           [x + 1, y], [x - 1, y],
           [x, y + 1], [x, y - 1]
@@ -225,7 +219,7 @@
         }
       }
 
-      return true; // Nu am găsit nicio cale
+      return true;
     },
     
     validateInput() {

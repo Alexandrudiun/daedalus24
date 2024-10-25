@@ -51,7 +51,7 @@
         cellSize: 20,
         stepCount: 0,
         path: [],
-        showCompletionPopup: false, // Folosește această variabilă pentru popup
+        showCompletionPopup: false, // pentru popup
       };
     },
     methods: {
@@ -131,7 +131,7 @@
         await this.updateMazePath();
       },
       closePopup() {
-  this.showCompletionPopup = false; // Închide popup-ul
+  this.showCompletionPopup = false; // inchide popup-ul
 },
       async updateMazePath() {
         const mazePath = localStorage.getItem("mazePath");
@@ -171,10 +171,9 @@
       this.startY = y;
       this.$forceUpdate();
 
-      // Verifică dacă jucătorul a ajuns la final
       if (this.startX === this.endX && this.startY === this.endY) {
-        this.showCompletionPopup = true; // Afișează popup-ul
-        clearInterval(animationInterval); // Oprește animația
+        this.showCompletionPopup = true;
+        clearInterval(animationInterval);
       }
       currentStep++;
     } else {
@@ -254,7 +253,7 @@
   
   .maze-content {
     display: flex;
-    align-items: center; /* Aliniază labirintul și controalele vertical */
+    align-items: center;
   }
   
   .maze-grid {
@@ -362,23 +361,22 @@
 }
 
 .popup-content {
-    background-image: url('../assets/win2.jpeg'); /* Imaginea de fundal */
-    background-size: cover; /* Asigură-te că imaginea acoperă tot spațiul */
-    background-position: center; /* Centrează imaginea */
+    background-image: url('../assets/win2.jpeg');
+    background-size: cover;
+    background-position: center;
     padding: 30px;
     border-radius: 8px;
     max-width: 400px;
     width: 100%;
     text-align: center;
-    color: black; /* Culoarea textului */
+    color: black;
     
-    /* Adăugăm un fundal semi-transparent */
-    background-color: rgba(255, 255, 255, 0.8); /* Fundal alb cu 80% opacitate */
+    background-color: rgba(255, 255, 255, 0.8);
 }
 
 .congratulations-text {
     font-family: "Jacquard 12", system-ui;
-    font-size: 3em; /* Mărirea dimensiunii textului */
+    font-size: 3em;
     margin: 0;
 }
 
@@ -393,7 +391,7 @@
 }
   
 .close-button:hover {
-    background-color: #B8860B; /* O nuanță mai închisă de galben auriu */
+    background-color: #B8860B;
 }
   </style>
   

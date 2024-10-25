@@ -25,9 +25,9 @@ import { RouterLink } from 'vue-router';
 
 .welcome-container {
   display: flex;
-  align-items: center; /* Center vertically */
-  justify-content: center; /* Center horizontally */
-  height: 100vh; /* Full height of the viewport */
+  align-items: center;
+  justify-content: center; 
+  height: 100vh; 
   margin: 0;
   padding: 0;
 }
@@ -49,17 +49,16 @@ import { RouterLink } from 'vue-router';
   color: #1C1C1C;
   margin-bottom: 20px;
 
-  /* Apply fade-in animation */
   opacity: 0;
   animation: fadeIn 1s ease-in forwards;
 }
 
 .play-button {
   font-family: "Jacquard 12", system-ui;
-  font-size: 2.2em;
+  font-size: 3.2em;
   color: #ffffff;
   background-color: #DAA520;
-  padding: 20px 40px;
+  padding: 10px 30px;
   border: none;
   border-radius: 12px;
   cursor: pointer;
