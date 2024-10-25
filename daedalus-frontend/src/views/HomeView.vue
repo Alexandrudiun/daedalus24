@@ -104,8 +104,13 @@ import { RouterLink } from 'vue-router';
   transition: transform 0.3s;
 }
 
-/* Media queries pentru responsive design pe telefoane */
+/* Ascunde butoanele pe ecrane mici */
 @media (max-width: 768px) {
+  .back-button,
+  .music-button {
+    display: none;
+  }
+
   .welcome-text {
     font-size: 3em;
   }
@@ -119,20 +124,6 @@ import { RouterLink } from 'vue-router';
     padding: 30px;
     width: 90%;
   }
-
-  .back-button {
-    font-size: 1.4em; /* Dimensiune mai mică pentru back button */
-    padding: 8px 16px; /* Ajustare padding */
-    top: 10px; /* Poziționare mai sus pe ecrane mici */
-    right: 80px; /* Ajustare margine dreapta */
-  }
-
-  .music-button {
-    width: 50px; /* Dimensiune mai mică pentru music button */
-    height: 50px; /* Dimensiune mai mică pentru music button */
-    bottom: 10px; /* Poziționare mai jos pe ecrane mici */
-    right: 10px; /* Ajustare margine dreapta */
-  }
 }
 
 @media (max-width: 480px) {
@@ -143,20 +134,6 @@ import { RouterLink } from 'vue-router';
   .play-button {
     font-size: 1.8em;
     padding: 6px 16px;
-  }
-
-  .back-button {
-    font-size: 1.2em;
-    padding: 6px 12px;
-    top: 8px;
-    right: 70px;
-  }
-
-  .music-button {
-    width: 40px;
-    height: 40px;
-    bottom: 8px;
-    right: 8px;
   }
 }
 </style>
