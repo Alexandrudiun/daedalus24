@@ -99,16 +99,47 @@ export default {
   },
   methods: {
     generateWallArray(width, height, density) {
-      const walls = [];
-      const totalCells = width * height;
-      const numberOfWalls = Math.floor((totalCells * density) / 100);
+      // Validăm și ajustăm densitatea la maxim 40%
+      const maxDensity = 40;
+      const validDensity = Math.min(Math.max(0, density), maxDensity);
       
-      // Generate random wall positions
-      for (let i = 0; i < numberOfWalls; i++) {
-        const x = Math.floor(Math.random() * width);
-        const y = Math.floor(Math.random() * height);
-        walls.push([x, y]);
+      // Calculăm numărul EXACT de celule care reprezintă procentajul dorit
+      const totalCells = width * height;
+      const maxWalls = Math.floor(totalCells * 0.4); // 40% din total
+      const requestedWalls = Math.floor(totalCells * (validDensity / 100));
+      
+      // Ne asigurăm că nu depășim 40% din celule
+      const numberOfWalls = Math.min(requestedWalls, maxWalls);
+      
+      console.log(`Total cells: ${totalCells}`);
+      console.log(`Requested density: ${validDensity}%`);
+      console.log(`Maximum allowed walls (40%): ${maxWalls}`);
+      console.log(`Walls to generate: ${numberOfWalls}`);
+
+      // Creăm un array cu toate pozițiile posibile, exclusiv start și sfârșit
+      let allPositions = [];
+      for(let x = 0; x < width; x++) {
+        for(let y = 0; y < height; y++) {
+          // Excludem pozițiile de start și sfârșit
+          if(!(x === this.startX && y === this.startY) && 
+             !(x === this.endX && y === this.endY)) {
+            allPositions.push([x, y]);
+          }
+        }
       }
+
+      // Amestecăm array-ul pentru a selecta aleatoriu pozițiile
+      for (let i = allPositions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]];
+      }
+
+      // Luăm exact numărul de poziții de care avem nevoie
+      const walls = allPositions.slice(0, numberOfWalls);
+      
+      // Verificăm procentajul final
+      const actualPercentage = (walls.length / totalCells * 100).toFixed(2);
+      console.log(`Generated ${walls.length} walls (${actualPercentage}% of total cells)`);
       
       return JSON.stringify(walls);
     },
@@ -121,17 +152,28 @@ export default {
       const endX = Number(this.endX);
       const endY = Number(this.endY);
 
-      // Validations
+      // Validări
       if (this.areAdjacent(startX, startY, endX, endY)) {
         this.errorCode = 106;
         this.showError('Punctul de start si punctul de final nu pot fi adiacente.');
         return;
       }
+      
+      if (this.wallDensity > 40) {
+        this.errorCode = 107;
+        this.showError('Densitatea pereților nu poate depăși 40% din totalul celulelor');
+        return;
+      }
 
-      // Generate wall array as a string
+      // Setăm valorile pentru generarea pereților
+      this.startX = startX;
+      this.startY = startY;
+      this.endX = endX;
+      this.endY = endY;
+
+      // Generăm array-ul de pereți
       const wallarray = this.generateWallArray(width, height, this.wallDensity);
 
-      // Create the data object with stringified wall array
       const mazeData = {
         startx: startX,
         starty: startY,
@@ -142,7 +184,6 @@ export default {
         wallarray: wallarray,
       };
 
-      // Send the data to the server
       fetch('https://dedalus24bk.onrender.com/create', {
         method: 'POST',
         headers: {
@@ -159,7 +200,6 @@ export default {
       .then(data => {
         console.log('Success:', data);
         
-        // Store the returned ID in local storage based on the new response format
         if (data && data.id) {
           localStorage.setItem('mazeId', data.id);
         }
@@ -189,8 +229,6 @@ export default {
     },
   },
 };
-
-
 // // Validations
 // if (width <= 16  height <= 16) {
 //         this.errorCode = 100; // Error code for invalid dimensions
