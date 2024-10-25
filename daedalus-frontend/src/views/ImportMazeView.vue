@@ -35,7 +35,7 @@
                                     
                                 </p>
                                 <p>
-                                    <strong>Created at:</strong>
+                                    <strong>Date:</strong>
                                 {{ new Date(maze.createdAt).toLocaleString() }}
                                 </p>
                             </div>
