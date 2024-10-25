@@ -213,24 +213,26 @@
   </script>
     
   <style scoped>
-  .maze-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
-  
-  .maze-content {
-    display: flex;
-    align-items: center;
-  }
-  
-  .maze-grid {
-    display: grid;
-    gap: 0; /* Fără gap între celule */
-    padding: 0; /* Fără padding */
-    border-radius: 12px;
-  }
+.maze-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.maze-content {
+  display: flex;
+  align-items: center; /* Aliniază labirintul și controalele vertical */
+}
+
+.maze-grid {
+  display: grid;
+  background-color: rgba(238, 238, 238, 0.5);
+  backdrop-filter: blur(8px);
+  gap: 0px;
+  padding: 20px;
+  border-radius: 12px;
+}
   
   .maze-cell {
     border: 2px transparent #eee;
@@ -272,10 +274,8 @@
     flex-direction: column;
     align-items: center;
     margin-left: 50px;
-    background-color: rgba(238, 238, 238, 0.5);
     border-radius: 12px;
     padding: 35px;
-    backdrop-filter: blur(8px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }
   
