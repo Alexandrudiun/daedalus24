@@ -19,6 +19,10 @@
             ></div>
           </div>
         </div>
+        <div class="controls">
+          <button @click="showPath" class="show-path-button">Show Path</button>
+          <p class="step-count">Steps: {{ stepCount }}</p>
+        </div>
       </div>
     </div>
 </template>
@@ -113,7 +117,7 @@
 
 .maze-content {
   display: flex;
-  align-items: flex-start; /* Aliniază labirintul și controalele */
+  align-items: center; /* Aliniază labirintul și controalele vertical */
 }
 
 .maze-grid {
@@ -144,7 +148,13 @@
 .controls {
   display: flex;
   flex-direction: column;
-  margin-left: 20px; /* Spațiu între labirint și controale */
+  align-items: center; /* Centrează conținutul în interiorul controls */
+  margin-left: 50px; /* Spațiu între labirint și controale */
+  background-color: rgba(238, 238, 238, 0.5);
+  border-radius: 12px; /* Colțuri rotunjite */
+  padding: 35px; /* Spațiu interior */
+  backdrop-filter: blur(8px); /* Efect de blur pe fundal */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Umbra pentru adâncime */
 }
 
 .show-path-button {
