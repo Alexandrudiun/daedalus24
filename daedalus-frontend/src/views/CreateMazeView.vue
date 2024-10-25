@@ -82,9 +82,7 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {
+<script>export default {
   name: 'CreateMaze',
   data() {
     return {
@@ -95,10 +93,25 @@ export default {
       endX: '',
       endY: '',
       wallDensity: 25,
-      errorCode: null, // Initialize error code
+      errorCode: null,
     };
   },
   methods: {
+    generateWallArray(width, height, density) {
+      const walls = [];
+      const totalCells = width * height;
+      const numberOfWalls = Math.floor((totalCells * density) / 100);
+      
+      // Generate random wall positions
+      for (let i = 0; i < numberOfWalls; i++) {
+        const x = Math.floor(Math.random() * width);
+        const y = Math.floor(Math.random() * height);
+        walls.push([x, y]);
+      }
+      
+      return JSON.stringify(walls);
+    },
+    
     handleSubmit() {
       const width = Number(this.mazeWidth);
       const height = Number(this.mazeHeight);
@@ -108,68 +121,28 @@ export default {
       const endY = Number(this.endY);
 
       // Validations
-      if (width <= 16 || height <= 16) {
-        this.errorCode = 100; // Error code for invalid dimensions
-        this.showError('Dimensiunea labirintului trebuie sa fie mai mare de 16x16.');
-        return;
-      }
-      if (startX < 0 || startY < 0 || startX >= width || startY >= height) {
-        this.errorCode = 101; // Error code for invalid starting point
-        this.showError('Punctul de start trebuie sa fie in interiorul labirintului.');
-        return;
-      }
-      if (endX < 0 || endY < 0 || endX >= width || endY >= height) {
-        this.errorCode = 102; // Error code for invalid ending point
-        this.showError('Punctul de final trebuie sa fie in interiorul labirintului.');
-        return;
-      }
-
-      if (endX === endY && startX === startY) {
-        this.errorCode = 103; // Error code for identical start and end points
-        this.showError('Putintele de start si final nu pot fi aceleasi.');
-        return;
-      }
-
-      if (
-        startX !== 0 && startX !== width - 1 &&
-        startY !== 0 && startY !== height - 1
-      ) {
-        this.errorCode = 104; // Error code for invalid start point position
-        this.showError('Punctul de start trebuie sa fie pe marginea labirintului.');
-        return;
-      }
-
-      if (
-        endX !== 0 && endX !== width - 1 &&
-        endY !== 0 && endY !== height - 1
-      ) {
-        this.errorCode = 105; // Error code for invalid end point position
-        this.showError('Punctul de final trebuie sa fie pe marginea labirintului.');
-        return;
-      }
-
-      // Ensure start and end points are not adjacent
       if (this.areAdjacent(startX, startY, endX, endY)) {
-        this.errorCode = 106; // Error code for adjacent points
+        this.errorCode = 106;
         this.showError('Punctul de start si punctul de final nu pot fi adiacente.');
         return;
       }
 
-      // Create the object to send
+      // Generate wall array as a string
+      const wallarray = this.generateWallArray(width, height, this.wallDensity);
+
+      // Create the data object with stringified wall array
       const mazeData = {
-        _id: { "$oid": "671b783f2e1f63735acf3cea" }, // Replace with a generated ID if needed
-        startx: { "$numberInt": startX },
-        starty: { "$numberInt": startY },
-        sizex: { "$numberInt": width },
-        sizey: { "$numberInt": height },
-        endx: { "$numberInt": endX },
-        endy: { "$numberInt": endY },
-        wallarray: `[[1, 2], [3, 4], [5, 6]]`, // Modify this as per your requirements
-        __v: { "$numberInt": "0" },
+        startx: startX,
+        starty: startY,
+        sizex: width,
+        sizey: height,
+        endx: endX,
+        endy: endY,
+        wallarray: wallarray,  // This is now a string
       };
 
       // Send the data to the server
-      fetch('https://dedalus24bk.onrender.com/register', {
+      fetch('https://dedalus24bk.onrender.com/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -187,31 +160,86 @@ export default {
         
         // Store the returned ID in local storage
         if (data && data._id) {
-          localStorage.setItem('mazeId', data._id['$oid']);
+          localStorage.setItem('mazeId', typeof data._id === 'string' ? data._id : data._id.$oid);
         }
 
         alert('Labirintul a fost creat cu succes!');
       })
       .catch((error) => {
         console.error('Error:', error);
-        this.errorCode = 200; // General error code for network/server issues
+        this.errorCode = 200;
         this.showError('A apărut o eroare la crearea labirintului: ' + error.message);
       });
     },
+    
     areAdjacent(x1, y1, x2, y2) {
       return (
-        (Math.abs(x1 - x2) === 1 && y1 === y2) || // adiacenta orizontala
-        (Math.abs(y1 - y2) === 1 && x1 === x2)    // adiacenta verticala
+        (Math.abs(x1 - x2) === 1 && y1 === y2) ||
+        (Math.abs(y1 - y2) === 1 && x1 === x2)
       );
     },
+    
     showError(message) {
-      alert(message); // You can customize this to show errors in your UI
+      alert(message);
     },
+    
     importMaze() {
       console.log('Importing maze...');
     },
   },
 };
+
+
+
+
+// // Validations
+// if (width <= 16  height <= 16) {
+//         this.errorCode = 100; // Error code for invalid dimensions
+//         this.showError('Dimensiunea labirintului trebuie sa fie mai mare de 16x16.');
+//         return;
+//       }
+//       if (startX < 0  startY < 0  startX >= width  startY >= height) {
+//         this.errorCode = 101; // Error code for invalid starting point
+//         this.showError('Punctul de start trebuie sa fie in interiorul labirintului.');
+//         return;
+//       }
+//       if (endX < 0  endY < 0  endX >= width || endY >= height) {
+//         this.errorCode = 102; // Error code for invalid ending point
+//         this.showError('Punctul de final trebuie sa fie in interiorul labirintului.');
+//         return;
+//       }
+
+//       if (endX === startX && endY === startY) {
+//         this.errorCode = 103; // Error code for identical start and end points
+//         this.showError('Putintele de start si final nu pot fi aceleasi.');
+//         return;
+//       }
+
+//       if (
+//         startX !== 0 && startX !== width - 1 &&
+//         startY !== 0 && startY !== height - 1
+//       ) {
+//         this.errorCode = 104; // Error code for invalid start point position
+//         this.showError('Punctul de start trebuie sa fie pe marginea labirintului.');
+//         return;
+//       }
+
+//       if (
+//         endX !== 0 && endX !== width - 1 &&
+//         endY !== 0 && endY !== height - 1
+//       ) {
+//         this.errorCode = 105; // Error code for invalid end point position
+//         this.showError('Punctul de final trebuie sa fie pe marginea labirintului.');
+//         return;
+//       }
+
+//       // Ensure start and end points are not adjacent
+//       if (this.areAdjacent(startX, startY, endX, endY)) {
+//         this.errorCode = 106; // Error code for adjacent points
+//         this.showError('Punctul de start si punctul de final nu pot fi adiacente.');
+//         return;
+//       }
+
 </script>
 
 <style scoped>
