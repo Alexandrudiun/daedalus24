@@ -1,38 +1,40 @@
 <template>
     <div class="maze-container" v-if="maze.length > 0">
-      <div
-        class="maze-grid"
-        :style="{ gridTemplateColumns: `repeat(${maze[0].length}, ${cellSize}px)` }"
-      >
+      <div class="maze-content">
         <div
-          v-for="(row, rowIndex) in maze"
-          :key="rowIndex"
-          class="maze-row"
+          class="maze-grid"
+          :style="{ gridTemplateColumns: `repeat(${maze[0].length}, ${cellSize}px)` }"
         >
           <div
-            v-for="(cell, cellIndex) in row"
-            :key="cellIndex"
-            :class="getCellClass(rowIndex, cellIndex)"
-            class="maze-cell"
-            :style="{ width: cellSize + 'px', height: cellSize + 'px' }"
-          ></div>
+            v-for="(row, rowIndex) in maze"
+            :key="rowIndex"
+            class="maze-row"
+          >
+            <div
+              v-for="(cell, cellIndex) in row"
+              :key="cellIndex"
+              :class="getCellClass(rowIndex, cellIndex)"
+              class="maze-cell"
+              :style="{ width: cellSize + 'px', height: cellSize + 'px' }"
+            ></div>
+          </div>
         </div>
       </div>
     </div>
 </template>
   
-  
 <script>
   export default {
     data() {
-      return {
+        return {
         maze: [],
         startX: 0,
         startY: 0,
         endX: 0,
         endY: 0,
         cellSize: 20, // dimensiunea fiecărei celule
-      };
+        stepCount: 0, // numărul de pași
+        };
     },
     methods: {
       async fetchMazeData() {
@@ -109,6 +111,11 @@
   min-height: 100vh;
 }
 
+.maze-content {
+  display: flex;
+  align-items: flex-start; /* Aliniază labirintul și controalele */
+}
+
 .maze-grid {
   display: grid;
   background-color: rgba(238, 238, 238, 0.5);
@@ -133,5 +140,29 @@
 .end {
   background-color: #f44336;
 }
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px; /* Spațiu între labirint și controale */
+}
+
+.show-path-button {
+  background-color: #4CAF50; /* Culoare verde */
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.show-path-button:hover {
+  background-color: #45a049; /* Întunecarea culorii la hover */
+}
+
+.step-count {
+  margin-top: 10px;
+  font-size: 1.2em;
+}
 </style>
-  

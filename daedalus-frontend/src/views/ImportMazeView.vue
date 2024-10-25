@@ -88,7 +88,9 @@
       },
   
       playMaze(mazeId) {
-        this.$router.push(`/play/${mazeId}`);
+        localStorage.clear();
+        localStorage.setItem('mazeId', mazeId);
+        this.$router.push('/play-maze');
       },
   
       async fetchMazes() {
@@ -127,8 +129,8 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     width: 90%;
     max-width: 600px;
-    max-height: 95vh; /* înălțime maximă pentru a activa scroll-ul */
-    overflow-y: auto; /* scroll vertical */
+    max-height: 95vh;
+    overflow-y: auto;
   }
   
   .play-title {
