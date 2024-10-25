@@ -32,7 +32,7 @@
     },
     methods: {
       async fetchMazeData() {
-        const mazeId = localStorage.getItem("mazeid");
+        const mazeId = localStorage.getItem("mazeId");
         if (!mazeId) {
           console.error("Maze ID not found in local storage.");
           return;

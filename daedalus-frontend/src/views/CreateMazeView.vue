@@ -208,6 +208,7 @@ export default {
         }
 
         alert('Labirintul a fost creat cu succes!');
+        this.$router.push('/play-maze');
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -215,7 +216,6 @@ export default {
         this.showError('A apărut o eroare la crearea labirintului: ' + error.message);
       });
 
-      this.$router.push('/play-maze');
     },
     
     areAdjacent(x1, y1, x2, y2) {
