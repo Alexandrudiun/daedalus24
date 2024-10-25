@@ -48,7 +48,6 @@ import { RouterLink } from 'vue-router';
   font-size: 5.5em;
   color: #1C1C1C;
   margin-bottom: 20px;
-
   opacity: 0;
   animation: fadeIn 1s ease-in forwards;
 }
@@ -67,5 +66,33 @@ import { RouterLink } from 'vue-router';
 
 .play-button:hover {
   background-color: #B8860B;
+}
+
+/* Media queries pentru responsive design pe telefoane */
+@media (max-width: 768px) {
+  .welcome-text {
+    font-size: 3em; /* Dimensiune mai mică pe ecrane mici */
+  }
+  
+  .play-button {
+    font-size: 2em; /* Dimensiune mai mică pentru buton */
+    padding: 8px 20px; /* Ajustare padding */
+  }
+
+  .welcome-content {
+    padding: 30px; /* Ajustare padding pentru conținut */
+    width: 90%; /* Lățime mai mare pe ecrane mici */
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-text {
+    font-size: 2.5em; /* Dimensiune și mai mică pentru ecrane foarte mici */
+  }
+  
+  .play-button {
+    font-size: 1.8em;
+    padding: 6px 16px; /* Ajustare padding */
+  }
 }
 </style>
