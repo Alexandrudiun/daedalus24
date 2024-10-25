@@ -193,7 +193,7 @@
 }
 
 .start {
-  background-image: url('../assets/player.png');
+  background-image: url('../assets/player2.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
