@@ -6,6 +6,7 @@
         class="maze-row"
         :style="{ height: cellSize + 'px' }"
       >
+      
         <div
           v-for="(cell, cellIndex) in row"
           :key="cellIndex"
