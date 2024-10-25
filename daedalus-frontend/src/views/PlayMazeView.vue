@@ -1,216 +1,230 @@
 <template>
-    <div class="maze-container" v-if="maze.length > 0">
-      <div class="maze-content">
+  <div class="maze-container" v-if="maze.length > 0">
+    <div class="maze-content">
+      <div
+        class="maze-grid"
+        :style="{
+          gridTemplateRows: `repeat(${maze[0].length}, ${cellSize}px)`,
+          gridTemplateColumns: `repeat(${maze.length}, ${cellSize}px)`
+        }"
+      >
         <div
-          class="maze-grid"
-          :style="{
-            gridTemplateRows: `repeat(${maze[0].length}, ${cellSize}px)`,
-            gridTemplateColumns: `repeat(${maze.length}, ${cellSize}px)`
-          }"
+          v-for="(row, rowIndex) in maze"
+          :key="rowIndex"
+          class="maze-row"
         >
           <div
-            v-for="(row, rowIndex) in maze"
-            :key="rowIndex"
-            class="maze-row"
-          >
-            <div
-              v-for="(cell, cellIndex) in row"
-              :key="cellIndex"
-              :class="getCellClass(rowIndex, cellIndex)"
-              class="maze-cell"
-              :style="{ width: cellSize + 'px', height: cellSize + 'px' }"
-            ></div>
-          </div>
-        </div>
-        <div class="controls">
-          <button @click="showPath" class="show-path-button">Show Path</button>
-          <button @click="moveToEndpoint" class="escape-button">Escape</button>
-          <p class="step-count">Steps: {{ stepCount }}</p>
+            v-for="(cell, cellIndex) in row"
+            :key="cellIndex"
+            :class="getCellClass(rowIndex, cellIndex)"
+            class="maze-cell"
+            :style="{ width: cellSize + 'px', height: cellSize + 'px' }"
+          ></div>
         </div>
       </div>
+      <div class="controls">
+        <button @click="showPath" class="show-path-button">Show Path</button>
+        <button @click="moveToEndpoint" class="escape-button">Escape</button>
+        <p class="step-count">Steps: {{ stepCount }}</p>
+      </div>
     </div>
-  </template>
-    
-  <script>
-  export default {
-    data() {
-      return {
-        maze: [],
-        startX: 0,
-        startY: 0,
-        endX: 0,
-        endY: 0,
-        cellSize: 20,
-        stepCount: 0,
-        path: [],
-      };
-    },
-    methods: {
-      async fetchMazeData() {
-        const mazeId = localStorage.getItem("mazeId");
-        if (!mazeId) {
-          console.error("Maze ID not found in local storage.");
-          return;
-        }
-        try {
-          const response = await fetch(`https://dedalus24bk.onrender.com/get/${mazeId}`);
-          if (!response.ok) throw new Error("Failed to fetch maze data");
-          
-          const data = await response.json();
-          this.setupMaze(data);
-        } catch (error) {
-          console.error("Error fetching maze data:", error);
-        }
-      },
-      setupMaze(data) {
-        const sizeY = parseInt(data.sizey?.$numberInt ?? data.sizey, 10);
-    const sizeX = parseInt(data.sizex?.$numberInt ?? data.sizex, 10);
+  </div>
+</template>
 
-    console.log("Parsed dimensions:", sizeX, sizeY); // Log dimensiuni
-
-    if (isNaN(sizeX) || isNaN(sizeY) || sizeX <= 0 || sizeY <= 0) {
-        console.error("Invalid maze dimensions:", sizeX, sizeY);
-        return;
-    }
-
-    // Inițializare labirint
-    this.maze = Array.from({ length: sizeY }, () => Array(sizeX).fill(0));
-
-    // Setare start și final
-    this.startX = parseInt(data.startx?.$numberInt ?? data.startx, 10);
-    this.startY = parseInt(data.starty?.$numberInt ?? data.starty, 10);
-    this.endX = parseInt(data.endx?.$numberInt ?? data.endx, 10);
-    this.endY = parseInt(data.endy?.$numberInt ?? data.endy, 10);
-
-    // Adăugați loguri pentru start și final
-    console.log("Start position:", this.startY, this.startX);
-    console.log("End position:", this.endY, this.endX);
-
-    // Parse wall array
-    let walls;
-    if (typeof data.wallarray === 'string') {
-      try {
-        walls = JSON.parse(data.wallarray);
-      } catch (e) {
-        console.error("Error parsing wall array:", e);
-        return;
-      }
-    } else {
-      walls = data.wallarray;
-    }
-
-    // Place walls
-    if (Array.isArray(walls)) {
-      walls.forEach(wall => {
-        if (Array.isArray(wall) && wall.length === 2) {
-          const [y, x] = wall;
-          if (y >= 0 && y < sizeY && x >= 0 && x < sizeX) {
-            this.maze[y][x] = 1;
-          }
-        }
-      });
-    }
-
-    // Adjust cell size based on window width
-    const displayWidth = Math.min(window.innerWidth - 40, sizeX * this.cellSize);
-    this.cellSize = Math.floor(displayWidth / sizeX);
-    console.log("Cell size:", this.cellSize);
+<script>
+export default {
+  data() {
+    return {
+      maze: [],
+      startX: 0,
+      startY: 0,
+      endX: 0,
+      endY: 0,
+      cellSize: 20,
+      stepCount: 0,
+      path: [],
+    };
   },
-
-      getCellClass(rowIndex, cellIndex) {
-        if (rowIndex === this.startY && cellIndex === this.startX) {
-          return "start";
-        } else if (rowIndex === this.endY && cellIndex === this.endX) {
-          return "end";
-        } else if (this.maze[rowIndex][cellIndex] === 1) {
-          return "wall";
-        } else if (this.path.some(pos => pos[0] === rowIndex && pos[1] === cellIndex)) {
-          return "road";
-        }
-        return "";
-      },
-      showPath() {
-        this.path = this.findPath();
-        this.stepCount = this.path.length;
-      },
-      async moveToEndpoint() {
-        if (this.path.length === 0) {
-          alert("No path found! Please calculate the path first.");
-          return;
-        }
-  
-        let currentStep = 0;
-  
-        const movePlayer = () => {
-          if (currentStep < this.path.length) {
-            const [y, x] = this.path[currentStep];
-            this.startX = x;
-            this.startY = y;
-            this.$forceUpdate();
-            currentStep++;
-          } else {
-            clearInterval(animationInterval);
-          }
-        };
-  
-        const animationInterval = setInterval(movePlayer, 100);
-      },
-      findPath() {
-        const openSet = [{ x: this.startX, y: this.startY, g: 0, f: 0 }];
-        const cameFrom = new Map();
-        const gScores = Array.from({ length: this.maze.length }, () => 
-          Array(this.maze[0].length).fill(Infinity)
-        );
-        gScores[this.startY][this.startX] = 0;
-  
-        const h = (x, y) => Math.abs(x - this.endX) + Math.abs(y - this.endY);
+  methods: {
+    async fetchMazeData() {
+      const mazeId = localStorage.getItem("mazeId");
+      if (!mazeId) {
+        console.error("Maze ID not found in local storage.");
+        return;
+      }
+      try {
+        const response = await fetch(`https://dedalus24bk.onrender.com/get/${mazeId}`);
+        if (!response.ok) throw new Error("Failed to fetch maze data");
         
-        while (openSet.length > 0) {
-          openSet.sort((a, b) => a.f - b.f);
-          const current = openSet.shift();
-          const { x, y } = current;
-  
-          if (x === this.endX && y === this.endY) {
-            let path = [[y, x]];
-            let currentY = y;
-            let currentX = x;
-  
-            while (cameFrom.has(`${currentY},${currentX}`)) {
-              [currentY, currentX] = cameFrom.get(`${currentY},${currentX}`);
-              path.push([currentY, currentX]);
-            }
-            return path.reverse();
-          }
-  
-          const neighbors = [
-            [y - 1, x], [y + 1, x], [y, x - 1], [y, x + 1]
-          ];
-  
-          for (const [ny, nx] of neighbors) {
-            if (ny < 0 || ny >= this.maze.length || nx < 0 || nx >= this.maze[0].length || 
-                this.maze[ny][nx] === 1) continue;
-  
-            const tentativeGScore = gScores[y][x] + 1;
-            if (tentativeGScore < gScores[ny][nx]) {
-              cameFrom.set(`${ny},${nx}`, [y, x]);
-              gScores[ny][nx] = tentativeGScore;
-              openSet.push({ 
-                x: nx, 
-                y: ny, 
-                g: tentativeGScore, 
-                f: tentativeGScore + h(nx, ny) 
-              });
-            }
-          }
-        }
-        return [];
+        const data = await response.json();
+        this.setupMaze(data);
+      } catch (error) {
+        console.error("Error fetching maze data:", error);
       }
     },
-    mounted() {
-      this.fetchMazeData();
+    setupMaze(data) {
+      const sizeY = parseInt(data.sizey?.$numberInt ?? data.sizey, 10);
+      const sizeX = parseInt(data.sizex?.$numberInt ?? data.sizex, 10);
+
+      if (isNaN(sizeX) || isNaN(sizeY) || sizeX <= 0 || sizeY <= 0) {
+          console.error("Invalid maze dimensions:", sizeX, sizeY);
+          return;
+      }
+
+      this.maze = Array.from({ length: sizeY }, () => Array(sizeX).fill(0));
+
+      this.startX = parseInt(data.startx?.$numberInt ?? data.startx, 10);
+      this.startY = parseInt(data.starty?.$numberInt ?? data.starty, 10);
+      this.endX = parseInt(data.endx?.$numberInt ?? data.endx, 10);
+      this.endY = parseInt(data.endy?.$numberInt ?? data.endy, 10);
+
+      let walls;
+      if (typeof data.wallarray === 'string') {
+        try {
+          walls = JSON.parse(data.wallarray);
+        } catch (e) {
+          console.error("Error parsing wall array:", e);
+          return;
+        }
+      } else {
+        walls = data.wallarray;
+      }
+
+      if (Array.isArray(walls)) {
+        walls.forEach(wall => {
+          if (Array.isArray(wall) && wall.length === 2) {
+            const [y, x] = wall;
+            if (y >= 0 && y < sizeY && x >= 0 && x < sizeX) {
+              this.maze[y][x] = 1;
+            }
+          }
+        });
+      }
+
+      const displayWidth = Math.min(window.innerWidth - 40, sizeX * this.cellSize);
+      this.cellSize = Math.floor(displayWidth / sizeX);
     },
-  };
-  </script>
+    getCellClass(rowIndex, cellIndex) {
+      if (rowIndex === this.startY && cellIndex === this.startX) {
+        return "start";
+      } else if (rowIndex === this.endY && cellIndex === this.endX) {
+        return "end";
+      } else if (this.maze[rowIndex][cellIndex] === 1) {
+        return "wall";
+      } else if (this.path.some(pos => pos[0] === rowIndex && pos[1] === cellIndex)) {
+        return "road";
+      }
+      return "";
+    },
+    async showPath() {
+      this.path = this.findPath();
+      this.stepCount = this.path.length;
+      await this.updateMazePath();
+    },
+    async updateMazePath() {
+      const mazePath = localStorage.getItem("mazePath");
+      const mazeId = localStorage.getItem("mazeId");
+      if (!mazePath || !mazeId) {
+        console.error("Path or Maze ID not found in local storage.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`https://dedalus24bk.onrender.com/update/${mazeId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ path: mazePath })
+        });
+
+        if (!response.ok) throw new Error("Failed to update path on the server");
+        console.log("Maze path successfully updated.");
+      } catch (error) {
+        console.error("Error updating maze path:", error);
+      }
+    },
+    async moveToEndpoint() {
+      if (this.path.length === 0) {
+        alert("No path found! Please calculate the path first.");
+        return;
+      }
+
+      let currentStep = 0;
+
+      const movePlayer = () => {
+        if (currentStep < this.path.length) {
+          const [y, x] = this.path[currentStep];
+          this.startX = x;
+          this.startY = y;
+          this.$forceUpdate();
+          currentStep++;
+        } else {
+          clearInterval(animationInterval);
+        }
+      };
+
+      const animationInterval = setInterval(movePlayer, 100);
+    },
+    findPath() {
+      const openSet = [{ x: this.startX, y: this.startY, g: 0, f: 0 }];
+      const cameFrom = new Map();
+      const gScores = Array.from({ length: this.maze.length }, () => 
+        Array(this.maze[0].length).fill(Infinity)
+      );
+      gScores[this.startY][this.startX] = 0;
+
+      const h = (x, y) => Math.abs(x - this.endX) + Math.abs(y - this.endY);
+      
+      while (openSet.length > 0) {
+        openSet.sort((a, b) => a.f - b.f);
+        const current = openSet.shift();
+        const { x, y } = current;
+
+        if (x === this.endX && y === this.endY) {
+          let path = [[y, x]];
+          let currentY = y;
+          let currentX = x;
+
+          while (cameFrom.has(`${currentY},${currentX}`)) {
+            [currentY, currentX] = cameFrom.get(`${currentY},${currentX}`);
+            path.push([currentY, currentX]);
+          }
+          path.reverse();
+          localStorage.setItem('mazePath', JSON.stringify(path));
+          return path;
+        }
+
+        const neighbors = [
+          [y - 1, x], [y + 1, x], [y, x - 1], [y, x + 1]
+        ];
+
+        for (const [ny, nx] of neighbors) {
+          if (ny < 0 || ny >= this.maze.length || nx < 0 || nx >= this.maze[0].length || 
+              this.maze[ny][nx] === 1) continue;
+
+          const tentativeGScore = gScores[y][x] + 1;
+          if (tentativeGScore < gScores[ny][nx]) {
+            cameFrom.set(`${ny},${nx}`, [y, x]);
+            gScores[ny][nx] = tentativeGScore;
+            openSet.push({ 
+              x: nx, 
+              y: ny, 
+              g: tentativeGScore, 
+              f: tentativeGScore + h(nx, ny) 
+            });
+          }
+        }
+      }
+      return [];      
+    }
+  },
+  mounted() {
+    this.fetchMazeData();
+  },
+};
+</script>
+
     
   <style scoped>
 .maze-container {
