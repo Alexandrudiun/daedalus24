@@ -82,7 +82,8 @@
     </div>
   </div>
 </template>
-<script>export default {
+<script>
+export default {
   name: 'CreateMaze',
   data() {
     return {
@@ -138,7 +139,7 @@
         sizey: height,
         endx: endX,
         endy: endY,
-        wallarray: wallarray,  // This is now a string
+        wallarray: wallarray,
       };
 
       // Send the data to the server
@@ -158,9 +159,9 @@
       .then(data => {
         console.log('Success:', data);
         
-        // Store the returned ID in local storage
-        if (data && data._id) {
-          localStorage.setItem('mazeId', typeof data._id === 'string' ? data._id : data._id.$oid);
+        // Store the returned ID in local storage based on the new response format
+        if (data && data.id) {
+          localStorage.setItem('mazeId', data.id);
         }
 
         alert('Labirintul a fost creat cu succes!');
@@ -188,8 +189,6 @@
     },
   },
 };
-
-
 
 
 // // Validations
