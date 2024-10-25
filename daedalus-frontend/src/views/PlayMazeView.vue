@@ -1,24 +1,28 @@
 <template>
     <div class="maze-container" v-if="maze.length > 0">
       <div
-        v-for="(row, rowIndex) in maze"
-        :key="rowIndex"
-        class="maze-row"
-        :style="{ height: cellSize + 'px' }"
+        class="maze-grid"
+        :style="{ gridTemplateColumns: `repeat(${maze[0].length}, ${cellSize}px)` }"
       >
-      
         <div
-          v-for="(cell, cellIndex) in row"
-          :key="cellIndex"
-          :class="getCellClass(rowIndex, cellIndex)"
-          class="maze-cell"
-          :style="{ width: cellSize + 'px', height: cellSize + 'px' }"
-        ></div>
+          v-for="(row, rowIndex) in maze"
+          :key="rowIndex"
+          class="maze-row"
+        >
+          <div
+            v-for="(cell, cellIndex) in row"
+            :key="cellIndex"
+            :class="getCellClass(rowIndex, cellIndex)"
+            class="maze-cell"
+            :style="{ width: cellSize + 'px', height: cellSize + 'px' }"
+          ></div>
+        </div>
       </div>
     </div>
-  </template>
+</template>
   
-  <script>
+  
+<script>
   export default {
     data() {
       return {
@@ -95,27 +99,39 @@
       this.fetchMazeData();
     },
   };
-  </script>
+</script>
   
-  <style scoped>
-  .maze-container {
-    margin: 20px;
-    display: inline-block;
-  }
-  .maze-row {
-    display: flex;
-  }
-  .maze-cell {
-    border: 1px solid #eee;
-  }
-  .wall {
-    background-color: #333;
-  }
-  .start {
-    background-color: #4CAF50;
-  }
-  .end {
-    background-color: #f44336;
-  }
-  </style>
+<style scoped>
+.maze-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.maze-grid {
+  display: grid;
+  background-color: rgba(238, 238, 238, 0.5);
+  backdrop-filter: blur(8px);
+  gap: 0px;
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.maze-cell {
+  border: 2px transparent #eee;
+}
+
+.wall {
+  background-color: #333;
+}
+
+.start {
+  background-color: #4CAF50;
+}
+
+.end {
+  background-color: #f44336;
+}
+</style>
   
