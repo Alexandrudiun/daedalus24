@@ -7,8 +7,8 @@
 
   <main>
     <div class="welcome-container">
-      <button @click="goBack" class="back-button">Back</button>
-      <button @click="toggleMusic" class="music-button" :class="{ playing: isPlaying }"></button>
+      <button @click="goBack" class="back-button hide-on-mobile">Back</button> <!-- Clasă adăugată -->
+      <button @click="toggleMusic" class="music-button hide-on-mobile" :class="{ playing: isPlaying }"></button> <!-- Clasă adăugată -->
       <RouterView />
     </div>
   </main>
@@ -103,5 +103,17 @@ onMounted(() => {
 
 .music-button.playing {
   transform: scale(1.1);
+}
+
+/* Clasă pentru a ascunde butoanele pe telefoane */
+.hide-on-mobile {
+  display: none; /* Ascunde butonul implicit */
+}
+
+/* Activează butoanele doar pe ecrane mari */
+@media only screen and (min-width: 769px) {
+  .hide-on-mobile {
+    display: inline-block; /* Afișează butoanele pe ecrane mari */
+  }
 }
 </style>

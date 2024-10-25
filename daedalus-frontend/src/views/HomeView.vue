@@ -5,8 +5,6 @@
       <RouterLink to="/create-maze">
         <button class="play-button">Play</button>
       </RouterLink>
-      <button class="back-button hide-on-mobile">Back</button> <!-- Clasă adăugată -->
-      <button class="music-button hide-on-mobile"></button> <!-- Clasă adăugată -->
     </div>
   </div>
 </template>
@@ -67,25 +65,6 @@ import { RouterLink } from 'vue-router';
   transition: background-color 0.3s;
 }
 
-.play-button:hover {
-  background-color: #B8860B;
-}
-
-.back-button {
-  position: absolute;
-  top: 20px;
-  right: 100px;
-  font-family: "Jacquard 12", system-ui;
-  font-size: 1.7em;
-  padding: 10px 20px;
-  background-color: #DAA520;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
 .back-button:hover {
   background-color: #B8860B;
 }
@@ -104,24 +83,11 @@ import { RouterLink } from 'vue-router';
   transition: transform 0.3s;
 }
 
-/* Clasă pentru ascunderea butoanelor pe ecrane mici */
-.hide-on-mobile {
-  display: none; /* Ascunde butonul implicit */
-}
-
-/* Activează butoanele doar pe ecrane mari */
-@media only screen and (min-width: 769px) {
-  .hide-on-mobile {
-    display: inline-block;
-  }
-}
-
-/* Media queries pentru responsive design */
 @media (max-width: 768px) {
   .welcome-text {
     font-size: 3em;
   }
-  
+
   .play-button {
     font-size: 2em;
     padding: 8px 20px;
