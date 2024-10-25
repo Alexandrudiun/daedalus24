@@ -84,8 +84,7 @@
     </div>
   </div>
 </template>
-<script>
-export default {
+<script>export default {
   name: 'CreateMaze',
   data() {
     return {
@@ -97,56 +96,139 @@ export default {
       endY: '',
       wallDensity: 25,
       errorCode: null,
+      cellSize: 20,
     };
   },
+  computed: {
+    maxDimensions() {
+      const maxWidth = Math.floor((window.innerWidth - 80) / this.cellSize);
+      const maxHeight = Math.floor((window.innerHeight - 80) / this.cellSize);
+      
+      return {
+        width: maxWidth,
+        height: maxHeight
+      };
+    }
+  },
+  mounted() {
+    this.setInitialDimensions();
+    window.addEventListener('resize', this.handleResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.handleResize);
+  },
   methods: {
+    setInitialDimensions() {
+      this.mazeWidth = this.maxDimensions.width;
+      this.mazeHeight = this.maxDimensions.height;
+      
+      this.startX = 0;
+      this.startY = 0;
+      this.endX = this.mazeWidth - 1;
+      this.endY = this.mazeHeight - 1;
+    },
+    
+    handleResize() {
+      const newDimensions = this.maxDimensions;
+      
+      if (newDimensions.width < this.mazeWidth) {
+        this.mazeWidth = newDimensions.width;
+        if (this.endX >= this.mazeWidth) {
+          this.endX = this.mazeWidth - 1;
+        }
+      }
+      
+      if (newDimensions.height < this.mazeHeight) {
+        this.mazeHeight = newDimensions.height;
+        if (this.endY >= this.mazeHeight) {
+          this.endY = this.mazeHeight - 1;
+        }
+      }
+    },
+
     generateWallArray(width, height, density) {
-      // Validăm și ajustăm densitatea la maxim 40%
       const maxDensity = 40;
       const validDensity = Math.min(Math.max(0, density), maxDensity);
       
-      // Calculăm numărul EXACT de celule care reprezintă procentajul dorit
       const totalCells = width * height;
-      const maxWalls = Math.floor(totalCells * 0.4); // 40% din total
+      const maxWalls = Math.floor(totalCells * 0.4);
       const requestedWalls = Math.floor(totalCells * (validDensity / 100));
-      
-      // Ne asigurăm că nu depășim 40% din celule
       const numberOfWalls = Math.min(requestedWalls, maxWalls);
       
-      console.log(`Total cells: ${totalCells}`);
-      console.log(`Requested density: ${validDensity}%`);
-      console.log(`Maximum allowed walls (40%): ${maxWalls}`);
-      console.log(`Walls to generate: ${numberOfWalls}`);
+      // Array pentru a ține evidența pozițiilor ocupate
+      const occupiedPositions = new Set();
+      occupiedPositions.add(`${this.startX},${this.startY}`);
+      occupiedPositions.add(`${this.endX},${this.endY}`);
 
-      // Creăm un array cu toate pozițiile posibile, exclusiv start și sfârșit
-      let allPositions = [];
-      for(let x = 0; x < width; x++) {
-        for(let y = 0; y < height; y++) {
-          // Excludem pozițiile de start și sfârșit
-          if(!(x === this.startX && y === this.startY) && 
-             !(x === this.endX && y === this.endY)) {
-            allPositions.push([x, y]);
+      // Array pentru stocarea coordonatelor pereților
+      const walls = [];
+      let attempts = 0;
+      const maxAttempts = totalCells * 2;
+
+      while (walls.length < numberOfWalls && attempts < maxAttempts) {
+        const x = Math.floor(Math.random() * width);
+        const y = Math.floor(Math.random() * height);
+        const posKey = `${x},${y}`;
+
+        if (!occupiedPositions.has(posKey)) {
+          // Verificăm să nu blocăm calea
+          if (!this.wouldBlockPath(x, y, width, height, walls)) {
+            walls.push([y, x]);  // Adăugăm [y, x] pentru a menține formatul corect
+            occupiedPositions.add(posKey);
+          }
+        }
+        attempts++;
+      }
+
+      // Convertim array-ul direct într-un string în formatul dorit
+      const wallArrayString = JSON.stringify(walls);
+      console.log("Generated wall array:", wallArrayString);
+      return wallArrayString;
+    },
+
+    wouldBlockPath(wallX, wallY, width, height, currentWalls) {
+      const grid = Array(height).fill().map(() => Array(width).fill(0));
+      
+      // Marcăm pereții existenți
+      currentWalls.forEach(([y, x]) => {
+        grid[y][x] = 1;
+      });
+
+      // Marcăm noul perete
+      grid[wallY][wallX] = 1;
+
+      const visited = new Set();
+      const queue = [[this.startX, this.startY]];
+      visited.add(`${this.startX},${this.startY}`);
+
+      while (queue.length > 0) {
+        const [x, y] = queue.shift();
+        
+        if (x === this.endX && y === this.endY) {
+          return false; // Am găsit o cale
+        }
+
+        // Verificăm vecinii
+        const neighbors = [
+          [x + 1, y], [x - 1, y],
+          [x, y + 1], [x, y - 1]
+        ];
+
+        for (const [nx, ny] of neighbors) {
+          if (nx >= 0 && nx < width && 
+              ny >= 0 && ny < height && 
+              grid[ny][nx] === 0 && 
+              !visited.has(`${nx},${ny}`)) {
+            visited.add(`${nx},${ny}`);
+            queue.push([nx, ny]);
           }
         }
       }
 
-      // Amestecăm array-ul pentru a selecta aleatoriu pozițiile
-      for (let i = allPositions.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [allPositions[i], allPositions[j]] = [allPositions[j], allPositions[i]];
-      }
-
-      // Luăm exact numărul de poziții de care avem nevoie
-      const walls = allPositions.slice(0, numberOfWalls);
-      
-      // Verificăm procentajul final
-      const actualPercentage = (walls.length / totalCells * 100).toFixed(2);
-      console.log(`Generated ${walls.length} walls (${actualPercentage}% of total cells)`);
-      
-      return JSON.stringify(walls);
+      return true; // Nu am găsit nicio cale
     },
     
-    handleSubmit() {
+    validateInput() {
       const width = Number(this.mazeWidth);
       const height = Number(this.mazeHeight);
       const startX = Number(this.startX);
@@ -154,36 +236,51 @@ export default {
       const endX = Number(this.endX);
       const endY = Number(this.endY);
 
-      // Validări
-      if (this.areAdjacent(startX, startY, endX, endY)) {
-        this.errorCode = 106;
-        this.showError('Punctul de start si punctul de final nu pot fi adiacente.');
-        return;
+      // if (width > this.maxDimensions.width || height > this.maxDimensions.height) {
+      //   this.errorCode = 100;
+      //   this.showError(`Dimensiunea maximă permisă este ${this.maxDimensions.width}x${this.maxDimensions.height}`);
+      //   return false;
+      // }
+
+      if (!this.isValidPosition(startX, startY, width, height) ||
+          !this.isValidPosition(endX, endY, width, height)) {
+        this.errorCode = 101;
+        this.showError('Punctele de start și sfârșit trebuie să fie în interiorul labirintului.');
+        return false;
       }
-      
-      if (this.wallDensity > 40) {
-        this.errorCode = 107;
-        this.showError('Densitatea pereților nu poate depăși 40% din totalul celulelor');
+
+      if (startX === endX && startY === endY) {
+        this.errorCode = 102;
+        this.showError('Punctele de start și sfârșit nu pot fi identice.');
+        return false;
+      }
+
+      return true;
+    },
+
+    isValidPosition(x, y, width, height) {
+      return x >= 0 && x < width && y >= 0 && y < height;
+    },
+
+    handleSubmit() {
+      if (!this.validateInput()) {
         return;
       }
 
-      // Setăm valorile pentru generarea pereților
-      this.startX = startX;
-      this.startY = startY;
-      this.endX = endX;
-      this.endY = endY;
-
-      // Generăm array-ul de pereți
-      const wallarray = this.generateWallArray(width, height, this.wallDensity);
+      const wallarray = this.generateWallArray(
+        Number(this.mazeWidth),
+        Number(this.mazeHeight),
+        this.wallDensity
+      );
 
       const mazeData = {
-        startx: startX,
-        starty: startY,
-        sizex: width,
-        sizey: height,
-        endx: endX,
-        endy: endY,
-        wallarray: wallarray,
+        startx: Number(this.startX),
+        starty: Number(this.startY),
+        sizex: Number(this.mazeWidth),
+        sizey: Number(this.mazeHeight),
+        endx: Number(this.endX),
+        endy: Number(this.endY),
+        wallarray: wallarray  // Acum este direct un string
       };
 
       fetch('https://dedalus24bk.onrender.com/create', {
@@ -200,37 +297,20 @@ export default {
         return response.json();
       })
       .then(data => {
-        console.log('Success:', data);
-        
         if (data && data.id) {
           localStorage.setItem('mazeId', data.id);
-          console.log('Maze ID saved to local storage:', data.id);
+          this.$router.push('/play-maze');
         }
-
-        alert('Labirintul a fost creat cu succes!');
-        this.$router.push('/play-maze');
       })
       .catch((error) => {
         console.error('Error:', error);
         this.errorCode = 200;
-        this.showError('A apărut o eroare la crearea labirintului: ' + error.message);
+        this.showError('Eroare la crearea labirintului: ' + error.message);
       });
+    },
 
-    },
-    
-    areAdjacent(x1, y1, x2, y2) {
-      return (
-        (Math.abs(x1 - x2) === 1 && y1 === y2) ||
-        (Math.abs(y1 - y2) === 1 && x1 === x2)
-      );
-    },
-    
     showError(message) {
       alert(message);
-    },
-    
-    importMaze() {
-      console.log('Importing maze...');
     },
   },
 };

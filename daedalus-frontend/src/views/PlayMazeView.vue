@@ -29,124 +29,154 @@
   
 <script>
   export default {
-    data() {
-        return {
-        maze: [],
-        startX: 0,
-        startY: 0,
-        endX: 0,
-        endY: 0,
-        cellSize: 20, // dimensiunea fiecărei celule
-        stepCount: 0, // numărul de pași
-        path: [], // drumul cel mai scurt
-        };
+  data() {
+    return {
+      maze: [],
+      startX: 0,
+      startY: 0,
+      endX: 0,
+      endY: 0,
+      cellSize: 20,
+      stepCount: 0,
+      path: [],
+    };
+  },
+  methods: {
+    async fetchMazeData() {
+      const mazeId = localStorage.getItem("mazeId");
+      if (!mazeId) {
+        console.error("Maze ID not found in local storage.");
+        return;
+      }
+      try {
+        const response = await fetch(`https://dedalus24bk.onrender.com/get/${mazeId}`);
+        if (!response.ok) throw new Error("Failed to fetch maze data");
+        
+        const data = await response.json();
+        this.setupMaze(data);
+      } catch (error) {
+        console.error("Error fetching maze data:", error);
+      }
     },
-    methods: {
-      async fetchMazeData() {
-        const mazeId = localStorage.getItem("mazeId");
-        if (!mazeId) {
-          console.error("Maze ID not found in local storage.");
+    setupMaze(data) {
+      // Parse dimensions, ensuring we handle both string and NumberInt formats
+      const sizeY = parseInt(data.sizey?.$numberInt ?? data.sizey, 10);
+      const sizeX = parseInt(data.sizex?.$numberInt ?? data.sizex, 10);
+
+      if (isNaN(sizeX) || isNaN(sizeY) || sizeX <= 0 || sizeY <= 0) {
+        console.error("Invalid maze dimensions:", sizeX, sizeY);
+        return;
+      }
+
+      // Initialize empty maze
+      this.maze = Array.from({ length: sizeY }, () => Array(sizeX).fill(0));
+
+      // Set start and end positions
+      this.startX = parseInt(data.startx?.$numberInt ?? data.startx, 10);
+      this.startY = parseInt(data.starty?.$numberInt ?? data.starty, 10);
+      this.endX = parseInt(data.endx?.$numberInt ?? data.endx, 10);
+      this.endY = parseInt(data.endy?.$numberInt ?? data.endy, 10);
+
+      // Parse wall array - handle it as a string that needs to be parsed
+      let walls;
+      if (typeof data.wallarray === 'string') {
+        try {
+          walls = JSON.parse(data.wallarray);
+        } catch (e) {
+          console.error("Error parsing wall array:", e);
           return;
         }
-        try {
-          const response = await fetch(`https://dedalus24bk.onrender.com/get/${mazeId}`);
-          if (!response.ok) throw new Error("Failed to fetch maze data");
-          
-          const data = await response.json();
-          this.setupMaze(data);
-        } catch (error) {
-          console.error("Error fetching maze data:", error);
-        }
-      },
-      setupMaze(data) {
-        const walls = JSON.parse(data.wallarray);
-        const sizeY = parseInt(data.sizey?.$numberInt ?? data.sizey, 10);
-        const sizeX = parseInt(data.sizex?.$numberInt ?? data.sizex, 10);
+      } else {
+        walls = data.wallarray;
+      }
 
-        if (isNaN(sizeX) || isNaN(sizeY) || sizeX <= 0 || sizeY <= 0) {
-            console.error("Invalid maze dimensions:", sizeX, sizeY);
-            return;
-        }
-
-        this.maze = Array.from({ length: sizeY }, () => Array(sizeX).fill(0));
-        this.startX = parseInt(data.startx?.$numberInt ?? data.startx, 10);
-        this.startY = parseInt(data.starty?.$numberInt ?? data.starty, 10);
-        this.endX = parseInt(data.endx?.$numberInt ?? data.endx, 10);
-        this.endY = parseInt(data.endy?.$numberInt ?? data.endy, 10);
-
-        walls.forEach(([y, x]) => {
-            if (y < sizeY && x < sizeX) {
-              this.maze[y][x] = 1; // 1 pentru pereți
+      // Place walls
+      if (Array.isArray(walls)) {
+        walls.forEach(wall => {
+          if (Array.isArray(wall) && wall.length === 2) {
+            const [y, x] = wall;
+            if (y >= 0 && y < sizeY && x >= 0 && x < sizeX) {
+              this.maze[y][x] = 1;
             }
+          }
         });
+      }
 
-        const displayWidth = Math.min(window.innerWidth - 40, sizeX * this.cellSize);
-        this.cellSize = Math.floor(displayWidth / sizeX);
+      // Adjust cell size based on window width
+      const displayWidth = Math.min(window.innerWidth - 40, sizeX * this.cellSize);
+      this.cellSize = Math.floor(displayWidth / sizeX);
     },
-      getCellClass(rowIndex, cellIndex) {
-        if (rowIndex === this.startY && cellIndex === this.startX) {
-          return "start";
-        } else if (rowIndex === this.endY && cellIndex === this.endX) {
-          return "end";
-        } else if (this.maze[rowIndex][cellIndex] === 1) {
-          return "wall";
-        } else if (this.path.some(pos => pos[0] === rowIndex && pos[1] === cellIndex)) {
-          return "road";
+    getCellClass(rowIndex, cellIndex) {
+      if (rowIndex === this.startY && cellIndex === this.startX) {
+        return "start";
+      } else if (rowIndex === this.endY && cellIndex === this.endX) {
+        return "end";
+      } else if (this.maze[rowIndex][cellIndex] === 1) {
+        return "wall";
+      } else if (this.path.some(pos => pos[0] === rowIndex && pos[1] === cellIndex)) {
+        return "road";
+      }
+      return "";
+    },
+    showPath() {
+      this.path = this.findPath();
+      this.stepCount = this.path.length;
+    },
+    findPath() {
+      const openSet = [{ x: this.startX, y: this.startY, g: 0, f: 0 }];
+      const cameFrom = new Map();
+      const gScores = Array.from({ length: this.maze.length }, () => 
+        Array(this.maze[0].length).fill(Infinity)
+      );
+      gScores[this.startY][this.startX] = 0;
+
+      const h = (x, y) => Math.abs(x - this.endX) + Math.abs(y - this.endY);
+      
+      while (openSet.length > 0) {
+        openSet.sort((a, b) => a.f - b.f);
+        const current = openSet.shift();
+        const { x, y } = current;
+
+        if (x === this.endX && y === this.endY) {
+          let path = [[y, x]];
+          let currentY = y;
+          let currentX = x;
+
+          while (cameFrom.has(`${currentY},${currentX}`)) {
+            [currentY, currentX] = cameFrom.get(`${currentY},${currentX}`);
+            path.push([currentY, currentX]);
+          }
+          return path.reverse();
         }
-        return "";
-      },
-      showPath() {
-        this.path = this.findPath();
-        this.stepCount = this.path.length; // numărul de pași până la final
-      },
-      findPath() {
-  const openSet = [{ x: this.startX, y: this.startY, g: 0, f: 0 }];
-  const cameFrom = new Map();
-  const gScores = Array.from({ length: this.maze.length }, () => Array(this.maze[0].length).fill(Infinity));
-  gScores[this.startY][this.startX] = 0;
 
-  const h = (x, y) => Math.abs(x - this.endX) + Math.abs(y - this.endY);
-  
-  while (openSet.length > 0) {
-    openSet.sort((a, b) => a.f - b.f);
-    const current = openSet.shift();
-    const { x, y } = current;
+        const neighbors = [
+          [y - 1, x], [y + 1, x], [y, x - 1], [y, x + 1]
+        ];
 
-    if (x === this.endX && y === this.endY) {
-      let path = [[y, x]];
-      let currentY = y;
-      let currentX = x;
+        for (const [ny, nx] of neighbors) {
+          if (ny < 0 || ny >= this.maze.length || nx < 0 || nx >= this.maze[0].length || 
+              this.maze[ny][nx] === 1) continue;
 
-      while (cameFrom.has(`${currentY},${currentX}`)) {
-        [currentY, currentX] = cameFrom.get(`${currentY},${currentX}`);
-        path.push([currentY, currentX]);
+          const tentativeGScore = gScores[y][x] + 1;
+          if (tentativeGScore < gScores[ny][nx]) {
+            cameFrom.set(`${ny},${nx}`, [y, x]);
+            gScores[ny][nx] = tentativeGScore;
+            openSet.push({ 
+              x: nx, 
+              y: ny, 
+              g: tentativeGScore, 
+              f: tentativeGScore + h(nx, ny) 
+            });
+          }
+        }
       }
-      return path.reverse();
+      return [];
     }
-
-    const neighbors = [
-      [y - 1, x], [y + 1, x], [y, x - 1], [y, x + 1]
-    ];
-
-    for (const [ny, nx] of neighbors) {
-      if (ny < 0 || ny >= this.maze.length || nx < 0 || nx >= this.maze[0].length || this.maze[ny][nx] === 1) continue;
-
-      const tentativeGScore = gScores[y][x] + 1;
-      if (tentativeGScore < gScores[ny][nx]) {
-        cameFrom.set(`${ny},${nx}`, [y, x]);
-        gScores[ny][nx] = tentativeGScore;
-        openSet.push({ x: nx, y: ny, g: tentativeGScore, f: tentativeGScore + h(nx, ny) });
-      }
-    }
-  }
-  return []; // Dacă nu există drum valid
-}
-
-    },
-    mounted() {
-      this.fetchMazeData();
-    },
-  };
+  },
+  mounted() {
+    this.fetchMazeData();
+  },
+};
 </script>
   
 <style scoped>
