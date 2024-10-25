@@ -1,107 +1,139 @@
 <template>
-    <div class="play-container">
-      <div class="play-content">
-        <h1 class="play-title">Import a Maze</h1>
-        
-        <!-- Display each maze in a maze card -->
+  <div class="min-h-screen bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">
+        Available Mazes
+      </h1>
+      
+      <div class="grid gap-6">
         <div 
-          class="maze-card" 
           v-for="maze in mazes" 
-          :key="maze._id.$oid"
+          :key="maze._id"
+          class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-amber-200"
         >
-          <h2>Maze Preview</h2>
-          <p><strong>Starting Point:</strong> ({{ maze.startx.$numberInt }}, {{ maze.starty.$numberInt }})</p>
-          <p><strong>Ending Point:</strong> ({{ maze.endx.$numberInt }}, {{ maze.endy.$numberInt }})</p>
-          <p><strong>Size:</strong> {{ maze.sizex.$numberInt }} x {{ maze.sizey.$numberInt }}</p>
-          <p><strong>Wall Density:</strong> {{ calculateWallDensity(maze) }}%</p>
+          <!-- Maze Header -->
+          <div class="border-b border-gray-100 p-6">
+            <h2 class="text-2xl font-semibold text-amber-600">
+              Maze {{ maze._id.slice(-6) }}
+            </h2>
+          </div>
+          
+          <!-- Maze Content -->
+          <div class="p-6">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <p class="text-gray-600">
+                  <span class="font-medium">Start Position:</span>
+                  ({{ maze.startx }}, {{ maze.starty }})
+                </p>
+                <p class="text-gray-600">
+                  <span class="font-medium">End Position:</span>
+                  ({{ maze.endx }}, {{ maze.endy }})
+                </p>
+              </div>
+              
+              <div class="space-y-2">
+                <p class="text-gray-600">
+                  <span class="font-medium">Size:</span>
+                  {{ maze.sizex }} x {{ maze.sizey }}
+                </p>
+                <p class="text-gray-600">
+                  <span class="font-medium">Wall Density:</span>
+                  {{ calculateWallDensity(maze) }}%
+                </p>
+              </div>
+            </div>
+            
+            <!-- Play Button -->
+            <button 
+              @click="playMaze(maze._id)"
+              class="mt-6 w-full bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center"
+            >
+              <!-- Link Icon -->
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                class="h-4 w-4 mr-2" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round" 
+                  stroke-width="2" 
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" 
+                />
+              </svg>
+              Play This Maze
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </template>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'MazeDisplay',
   
-  <script>
-  export default {
-    name: 'MazeImport',
-    data() {
-      return {
-        mazes: [], // Array to hold maze data from the database
-      };
+  data() {
+    return {
+      mazes: [], // Will be populated by API call
+    }
+  },
+
+  methods: {
+    calculateWallDensity(maze) {
+      const walls = JSON.parse(maze.wallarray).length;
+      const totalCells = maze.sizex * maze.sizey;
+      return ((walls / totalCells) * 100).toFixed(2);
     },
-    methods: {
-      // Fetch maze data from the database on component mount
-      fetchMazes() {
-        fetch('https://dedalus24bk.onrender.com/getall')
-          .then(response => response.json())
-          .then(data => {
-            this.mazes = data; // Populate mazes array with fetched data
-          })
-          .catch(error => console.error('Error fetching mazes:', error));
-      },
-  
-      // Calculate wall density based on wall array length
-      calculateWallDensity(maze) {
-        const width = Number(maze.sizex.$numberInt);
-        const height = Number(maze.sizey.$numberInt);
-        const wallCount = JSON.parse(maze.wallarray).length;
-        const totalCells = width * height;
-        return ((wallCount / totalCells) * 100).toFixed(2);
-      },
+
+    playMaze(mazeId) {
+      this.$router.push(`/play/${mazeId}`);
     },
-    created() {
-      this.fetchMazes(); // Fetch mazes when component is created
+
+    async fetchMazes() {
+      try {
+        const response = await fetch('https://dedalus24bk.onrender.com/getall');
+        const data = await response.json();
+        this.mazes = data;
+      } catch (error) {
+        console.error('Error fetching mazes:', error);
+      }
     },
-  };
-  </script>
-  
-  <style scoped>
-  .play-container {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    height: 100vh;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  },
+
+  created() {
+    this.fetchMazes();
+  },
+}
+</script>
+
+<style scoped>
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(1, 1fr);
   }
-  
-  .play-content {
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 40px;
-    border: 2px solid #DAA520;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto; /* Enables vertical scroll */
-  }
-  
-  .play-title {
-    font-family: "Jacquard 12", system-ui;
-    font-size: 2.5em;
-    color: #1C1C1C;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .maze-card {
-    background-color: #F5F5F5;
-    padding: 20px;
-    border: 1px solid #DAA520;
-    border-radius: 12px;
-    margin-top: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-  
-  .maze-card h2 {
-    font-size: 1.5em;
-    color: #DAA520;
-    margin-bottom: 10px;
-  }
-  
-  .maze-card p {
-    font-size: 1.1em;
-    color: #333333;
-    margin: 5px 0;
-  }
-  </style>  
+}
+
+/* Ensure smooth transitions */
+.transition-shadow {
+  transition-property: box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+.transition-colors {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+</style>
