@@ -88,7 +88,7 @@ onMounted(() => {
 <style scoped>
 .welcome-container {
   height: 100vh;
-  background-image: url('assets/background.jpeg');
+  background-image: url('assets/background9.jpeg');
   background-size: cover;
   background-position: center;
 }

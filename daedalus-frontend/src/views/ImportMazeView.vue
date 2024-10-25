@@ -148,12 +148,15 @@
   }
   
   .maze-card {
-    background-color: #F5F5F5;
+    background-image: url('../assets/maze_card.jpeg');
+    background-color: rgba(255, 255, 255, 0.6); /* alb semi-transparent */
+    background-blend-mode: overlay; /* combină culoarea și imaginea */
+    backdrop-filter: blur(8px);
     padding: 20px;
     border: 1px solid #DAA520;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
+}
   
   .maze-card h2 {
     font-size: 1.5em;
