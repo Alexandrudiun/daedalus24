@@ -105,7 +105,7 @@ import { RouterLink } from 'vue-router';
 }
 
 /* Ascunde butoanele pe ecrane mici */
-@media (max-width: 768px) {
+@media only screen and (max-width: 768px) {
   .back-button,
   .music-button {
     display: none;
@@ -126,7 +126,7 @@ import { RouterLink } from 'vue-router';
   }
 }
 
-@media (max-width: 480px) {
+@media only screen and (max-width: 480px) {
   .welcome-text {
     font-size: 2.5em;
   }
