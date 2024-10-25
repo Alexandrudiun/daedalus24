@@ -206,6 +206,7 @@ export default {
         
         if (data && data.id) {
           localStorage.setItem('mazeId', data.id);
+          console.log('Maze ID saved to local storage:', data.id);
         }
 
         alert('Labirintul a fost creat cu succes!');
