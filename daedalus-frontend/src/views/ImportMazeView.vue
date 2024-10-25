@@ -31,6 +31,12 @@
                                 <p>
                                     <strong>Wall Density:</strong>
                                     {{ calculateWallDensity(maze) }}%
+
+                                    
+                                </p>
+                                <p>
+                                    <strong>Created at:</strong>
+                                {{ new Date(maze.createdAt).toLocaleString() }}
                                 </p>
                             </div>
                         </div>
