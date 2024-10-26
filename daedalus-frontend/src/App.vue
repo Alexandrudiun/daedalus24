@@ -7,8 +7,8 @@
 
   <main>
     <div class="welcome-container">
-      <button @click="goBack" class="back-button hide-on-mobile">Back</button> <!-- Clasă adăugată -->
-      <button @click="toggleMusic" class="music-button hide-on-mobile" :class="{ playing: isPlaying }"></button> <!-- Clasă adăugată -->
+      <button @click="goBack" class="back-button hide-on-mobile">Back</button>
+      <button @click="toggleMusic" class="music-button hide-on-mobile" :class="{ playing: isPlaying }"></button>
       <RouterView />
     </div>
   </main>
@@ -49,7 +49,7 @@ onMounted(() => {
 <style scoped>
 .welcome-container {
   height: 100vh;
-  background-image: url('assets/background9.jpeg');
+  background-image: url('assets/background10.png');
   background-size: cover;
   background-position: center;
   position: relative;
@@ -105,15 +105,13 @@ onMounted(() => {
   transform: scale(1.1);
 }
 
-/* Clasă pentru a ascunde butoanele pe telefoane */
 .hide-on-mobile {
-  display: none; /* Ascunde butonul implicit */
+  display: none;
 }
 
-/* Activează butoanele doar pe ecrane mari */
 @media only screen and (min-width: 769px) {
   .hide-on-mobile {
-    display: inline-block; /* Afișează butoanele pe ecrane mari */
+    display: inline-block;
   }
 }
 </style>

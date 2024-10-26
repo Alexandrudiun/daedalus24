@@ -437,14 +437,14 @@ input[type="range"] {
   border-radius: 12px;
   cursor: pointer;
   transition: background-color 0.3s;
-  min-width: 150px; /* Asigură o lățime minimă constantă */
+  min-width: 150px;
   margin: 5px;
 }
 
 .button-group {
   display: flex;
-  justify-content: center; /* Centrăm butoanele */
-  flex-wrap: wrap; /* Permite butoanelor să se așeze pe două linii */
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .create-button:hover,
@@ -452,12 +452,11 @@ input[type="range"] {
   background-color: #B8860B;
 }
 
-/* Media query pentru stilizare pe dispozitive mobile */
 @media (max-width: 600px) {
   .create-button,
   .import-button {
-    font-size: 2.5em; /* Dimensiune mai mică a fontului pe mobil */
-    padding: 8px 16px; /* Ajustarea padding-ului pe mobil */
+    font-size: 2.5em;
+    padding: 8px 16px; 
   }
 }
 </style>
