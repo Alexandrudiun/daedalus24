@@ -250,11 +250,27 @@
         return false;
       }
 
+      if (width < 4 && height < 4) {
+         this.errorCode = 100;
+         this.showError('Dimensiunea labirintului trebuie sa fie mai mare de 3x3.');
+         return;
+      }
+
+      if (this.areAdjacent(startX, startY, endX, endY)) {
+         this.errorCode = 106;
+         this.showError('Punctul de start si punctul de final nu pot fi adiacente.');
+         return;
+      }
+
       return true;
     },
 
     isValidPosition(x, y, width, height) {
       return x >= 0 && x < width && y >= 0 && y < height;
+    },
+
+    areAdjacent(x1, y1, x2, y2) {
+      return (Math.abs(x1 - x2) === 1 && y1 === y2) || (Math.abs(y1 - y2) === 1 && x1 === x2);
     },
 
     handleSubmit() {
@@ -311,7 +327,7 @@
   },
 };
 // // Validations
-// if (width <= 16  height <= 16) {
+// if (width < 4 && height < 4) {
 //         this.errorCode = 100; // Error code for invalid dimensions
 //         this.showError('Dimensiunea labirintului trebuie sa fie mai mare de 16x16.');
 //         return;
