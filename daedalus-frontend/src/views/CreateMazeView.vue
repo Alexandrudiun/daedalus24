@@ -75,7 +75,7 @@
           <span>{{ wallDensity }}%</span>
         </div>
         <div class="button-group">
-            <button type="submit" class="create-button">Create</button>
+          <button type="submit" class="create-button">Create</button>
           <RouterLink to="/import-maze">
             <button type="button" @click="importMaze" class="import-button">Import</button>
           </RouterLink>
@@ -84,6 +84,7 @@
     </div>
   </div>
 </template>
+
 <script>export default {
   name: 'CreateMaze',
   data() {
@@ -409,11 +410,6 @@ input[type="range"] {
   border-radius: 8px;
 }
 
-.button-group {
-  display: flex;
-  justify-content: space-between;
-}
-
 .create-button,
 .import-button {
   font-family: "Jacquard 12", system-ui;
@@ -425,10 +421,27 @@ input[type="range"] {
   border-radius: 12px;
   cursor: pointer;
   transition: background-color 0.3s;
+  min-width: 150px; /* Asigură o lățime minimă constantă */
+  margin: 5px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center; /* Centrăm butoanele */
+  flex-wrap: wrap; /* Permite butoanelor să se așeze pe două linii */
 }
 
 .create-button:hover,
 .import-button:hover {
   background-color: #B8860B;
+}
+
+/* Media query pentru stilizare pe dispozitive mobile */
+@media (max-width: 600px) {
+  .create-button,
+  .import-button {
+    font-size: 2.5em; /* Dimensiune mai mică a fontului pe mobil */
+    padding: 8px 16px; /* Ajustarea padding-ului pe mobil */
+  }
 }
 </style>
